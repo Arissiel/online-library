@@ -1,0 +1,262 @@
+definitions:
+  handlers.ResponseLyrics:
+    properties:
+      lyrics:
+        description: текст песни
+        items:
+          type: string
+        type: array
+      page:
+        description: страница
+        type: integer
+      page_size:
+        description: размер страницы
+        type: integer
+      song:
+        description: название песни
+        type: string
+      song_id:
+        description: id песни
+        type: string
+    type: object
+  models.Song:
+    description: Модель песни с основными атрибутами.
+    properties:
+      group:
+        type: string
+      link:
+        type: string
+      lyrics:
+        type: string
+      release_date:
+        type: string
+      song:
+        type: string
+      song_id:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /songs:
+    get:
+      consumes:
+      - application/json
+      description: Получение списка песен с возможностью фильтрации по группе и названию.
+      parameters:
+      - description: Название группы
+        example: '"Queen"'
+        in: query
+        name: group
+        type: string
+      - description: Название песни
+        example: '"Bohemian Rhapsody"'
+        in: query
+        name: title
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Количество элементов на странице
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список песен
+          schema:
+            items:
+              $ref: '#/definitions/models.Song'
+            type: array
+        "400":
+          description: Ошибочные параметры запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Songs
+      tags:
+      - songs
+    post:
+      consumes:
+      - application/json
+      description: Добавление новой песни в базу данных. Данные о песне подтягиваются
+        из внешнего API.
+      parameters:
+      - description: Данные песни
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/models.Song'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ID добавленной песни
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Ошибочный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Add Song
+      tags:
+      - songs
+  /songs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление песни из базы данных по её ID.
+      parameters:
+      - description: ID песни
+        example: 1
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Песня успешно удалена
+          schema:
+            type: string
+        "400":
+          description: Ошибочный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Песня не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete Song
+      tags:
+      - songs
+    put:
+      consumes:
+      - application/json
+      description: Обновление данных песни в базе по её ID.
+      parameters:
+      - description: ID песни
+        example: 1
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Обновленные данные песни
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/models.Song'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Песня успешно обновлена
+          schema:
+            type: string
+        "400":
+          description: Ошибочный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Песня не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update Song
+      tags:
+      - songs
+  /songs/{id}/lyrics:
+    get:
+      consumes:
+      - application/json
+      description: Получение текста песни по ID с возможностью разбивки на страницы.
+      parameters:
+      - description: ID песни
+        example: 1
+        in: query
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 5
+        description: Количество куплетов на странице
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Текст песни с пагинацией
+          schema:
+            $ref: '#/definitions/handlers.ResponseLyrics'
+        "400":
+          description: Ошибочные параметры запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Песня не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Song Lyrics
+      tags:
+      - songs
+swagger: "2.0"
