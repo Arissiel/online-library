@@ -21,11 +21,6 @@ func main() {
 		logger.Log.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Проверка и создание базы данных
-	if err := database.CheckAndCreateDatabase(cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName); err != nil {
-		logger.Log.Fatalf("Failed to check or create database: %v", err)
-	}
-
 	// Подключение к базе данных
 	db, err := database.ConnectDatabase(cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName)
 	if err != nil {
